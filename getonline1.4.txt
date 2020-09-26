@@ -3,7 +3,6 @@
 # Author:        spywill
 # Version:       1.4
 # Category:      Key Croc
-# Props:         Darren Kitchen, RootJunky, Cribbit, Lodrix
 #
 #
 MATCH getonline
