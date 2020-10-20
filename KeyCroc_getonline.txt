@@ -3,6 +3,7 @@
 # Author:          spywill
 # Version:         2.1
 # Category:        Key Croc
+# Props:           RootJunky, Cribbit, Lodrix, potong
 #
 #
 MATCH getonline
