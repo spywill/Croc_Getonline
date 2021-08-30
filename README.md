@@ -26,6 +26,8 @@
    - For Windows type in anywhere **getonline**
    - For Raspberry PI type in anywhere **rasponline**
    - For Linux in development
+   - When the payload is done running the LED will light up green Unplug Keycroc and plug back in
+   - Keycroc should now be connected to target pc wifi 
 
 ## PAYLOAD INFO :
 
