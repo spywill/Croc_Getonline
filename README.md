@@ -1,6 +1,33 @@
 # Getonline
-Get online automatically to target pc wifi
-Start payload by typing the MATCH word
+
+## INTRODUCTION :
+  - This project is developed for the HAK5 KeyCroc Get online automatically to target pc wifi
+
+* **GetOnline.txt**
+  - This payload will get the Keycroc online automatically to target pc wifi
+  - Getonline_Windows.txt this payload is for Windows target
+  - Getonline_Raspberry.txt this payload is for Raspberry PI target
+  - Getonline_Linux.txt in development
+
+* **TESTED ON**
+  - Windows 10
+  - Raspberry pi 4 with gnome-terminal installed
+  - linux in development
+  - Sorry no support for MAC OS
+
+## INSTALLATION :
+
+  - Will need to enter arming mode on your keycroc to install files.
+  - Download the GetOnline payload for Target OS and Place this in the KeyCroc **payload folder**
+
+## STARTING GETONLINE :
+
+   - To start GetOnline payload plug the keycroc into target pc
+   - For Windows type in anywhere **getonline**
+   - For Raspberry PI type in anywhere **rasponline**
+   - For Linux in development
+
+## PAYLOAD INFO :
 
 sed -E -i '1{x;s#^#sed -n 4p wifipass.txt#e;x};9{G;s/\n(\S+).*/ \1/};10{G;s/\n\S+//}' config.txt 
 
