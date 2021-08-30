@@ -1,5 +1,6 @@
 # Getonline
 Get online automatically to target pc wifi
+Start payload by typing the MATCH word
 
 sed -E -i '1{x;s#^#sed -n 4p wifipass.txt#e;x};9{G;s/\n(\S+).*/ \1/};10{G;s/\n\S+//}' config.txt 
 
