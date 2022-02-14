@@ -7,12 +7,12 @@
   - This payload will get the Keycroc online automatically to target pc wifi
   - Getonline_Windows.txt this payload is for Windows target
   - Getonline_Raspberry.txt this payload is for Raspberry PI target
-  - Getonline_Linux.txt in development
+  - Getonline_Linux.txt this payload is for Linux target
 
 * **TESTED ON**
   - Windows 10
-  - Raspberry pi 4 with gnome-terminal installed
-  - linux in development
+  - Raspberry pi 4
+  - linux parrot os
   - Sorry no support for MAC OS
 
 ## INSTALLATION :
@@ -25,9 +25,10 @@
    - To start GetOnline payload plug the keycroc into target pc
    - For Windows type in anywhere **getonline**
    - For Raspberry PI type in anywhere **rasponline**
-   - For Linux in development
+   - For Linux type in anywhere **linuxonline**
    - When the payload is done running the LED will light up green Unplug Keycroc and plug back in
-   - Keycroc should now be connected to target pc wifi 
+   - Keycroc should now be connected to target pc wifi
+   - NOTE: for linux edit payload for passwd needed for sudo permission
 
 ## PAYLOAD INFO :
 
