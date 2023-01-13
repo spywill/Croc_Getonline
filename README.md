@@ -3,7 +3,7 @@
 ## INTRODUCTION :
   - This project is developed for the HAK5 KeyCroc Get online automatically to target pc wifi
 
-* **Get_Online.txt**
+* **Croc_getonline.txt**
   - Attempt to connect Keycroc automatically to target wifi access point
 
 * **TESTED ON**
@@ -14,7 +14,7 @@
 ## INSTALLATION :
 
   - Will need to enter arming mode on your keycroc to install file.
-  - Download the Croc_GetOnline payload and Place this in the KeyCroc **payload folder**
+  - Download the Croc_getonline.txt payload and Place this in the KeyCroc **payload folder**
 
 ## STARTING GETONLINE :
 
