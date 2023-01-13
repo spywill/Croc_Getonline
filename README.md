@@ -10,20 +10,19 @@
   - Windows 10
   - Raspberry pi 4
   - linux parrot os
-  - Sorry no support for MAC OS
 
 ## INSTALLATION :
 
   - Will need to enter arming mode on your keycroc to install file.
-  - Download the Get_Online payload and Place this in the KeyCroc **payload folder**
+  - Download the Croc_GetOnline payload and Place this in the KeyCroc **payload folder**
 
 ## STARTING GETONLINE :
 
-   - To start Get_Online payload plug the keycroc into target pc
+   - To start Croc_GetOnline payload plug the keycroc into target pc
    - For Windows type in anywhere **getonline_W**
    - For Raspberry PI type in anywhere **getonline_R**
    - For Linux type in anywhere **getonline_L**
-   - When the payload is done running the LED will light up green Unplug Keycroc and plug back in
+   - When the payload is done running the LED will light up green
    - Keycroc should now be connected to target wifi access point
    - NOTE: for linux edit payload for passwd needed for sudo permission
 
