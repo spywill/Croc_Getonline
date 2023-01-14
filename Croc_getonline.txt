@@ -2,7 +2,7 @@
 # Description:     Attempt to connect Keycroc automatically to target wifi access point
 #                  Save to tools/Croc_Pot/wifipass.txt and loot/Croc_Pot/old_wifipass.txt
 # Author:          Spywill
-# Version:         3.0
+# Version:         3.1
 # Category:        Key Croc
 # Props:           Cribbit, Lodrix, potong, RootJunky, dark_pyrro
 
@@ -88,9 +88,6 @@ case $LOOT in
 		Q ENTER
 ;;
 esac
-
-ATTACKMODE HID
-sleep 2
 
 LED SETUP
 sed -i 's/\( \)*/\1/g' /root/udisk/tools/Croc_Pot/wifipass.txt
