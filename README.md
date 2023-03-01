@@ -1,38 +1,63 @@
 # Croc_Getonline
 
 ## INTRODUCTION :
-  - This project is developed for the HAK5 KeyCroc Get online automatically to target pc wifi
-
-* **Croc_getonline.txt**
-  - Attempt to connect Keycroc automatically to target wifi access point
+  - This project is developed for the HAK5 KeyCroc
+  - Attempt to connect Keycroc automatically to target wifi access point.
 
 * **TESTED ON**
   - Windows 10
-  - Raspberry pi 4
-  - linux parrot os
+  - Raspberry pi 4 (bullseye image)
+  - linux (parrot os)
 
 ## INSTALLATION :
 
-  - Will need to enter arming mode on your keycroc to install file.
+  - Enter arming mode on your keycroc to install file.
   - Download the Croc_getonline.txt payload and Place this in the KeyCroc **payload folder**
 
 ## STARTING GETONLINE :
 
-   - To start Croc_GetOnline payload plug the keycroc into target pc
-   - For Windows type in anywhere **getonline_W**
-   - For Raspberry PI type in anywhere **getonline_R**
-   - For Linux type in anywhere **getonline_L**
+   - After install plug into target and type in anywhere
+   - **getonline_W** <-- MATCH word for windows
+   - **getonline_L** <-- MATCH word for Linux
+   - **getonline_R** <-- MATCH word for Raspberry pi
    - When the payload is done running the LED will light up green
    - Keycroc should now be connected to target wifi access point
    - NOTE: for linux edit payload for passwd needed for sudo permission
 
 ## PAYLOAD INFO :
 
-sed -E -i '1{x;s#^#sed -n 1p wifipass.txt#e;x};10{G;s/\n(\S+).*/ \1/};11{G;s/\n\S+//}' config.txt 
+**(netsh wlan show networks) | Select-String "\:(.+)$" | % {\$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)} | Select-String "Key Content\W+\:(.+)$" | % {$pass=$_.Matches.Groups[1].Value.Trim(); $_} | %{[PSCustomObject]@{ PROFILE_NAME=$name;PASSWORD=$pass }} | Out-File -Encoding UTF8**
 
-Stuff the line from wifipass.txt into the hold space when processing config.txt and append and manipulate that line when needed.
+netsh wlan show networks: This command displays a list of all available wireless networks and their corresponding information, including their SSID and signal strength.
 
-A more explicit explanation:
+| Select-String "\:(.+)$": This command selects only the lines that contain the network names by using regular expressions. Specifically, it searches for lines that end with a colon followed by one or more characters, and selects only those lines.
+
+| % {\$name=$_.Matches.Groups[1].Value.Trim(); $_}: This command assigns the network name to the variable $name, which is extracted from the previously selected lines. It also trims any whitespace from the name.
+
+| %{(netsh wlan show profile name="$name" key=clear)}: This command uses the network name to retrieve the security information for each network. Specifically, it displays the profile information for the specified network, including the security key (if available).
+
+| Select-String "Key Content\W+\:(.+)$": This command selects only the lines that contain the security key information. Specifically, it searches for lines that contain the text "Key Content" followed by a colon and one or more characters, and selects only those lines.
+
+| % {$pass=$_.Matches.Groups[1].Value.Trim(); $_}: This command assigns the security key to the variable $pass, which is extracted from the previously selected lines. It also trims any whitespace from the key.
+
+| %{[PSCustomObject]@{ PROFILE_NAME=$name;PASSWORD=$pass }}: This command creates a custom object that contains the network name and security key for each network. Specifically, it creates an object with two properties: PROFILE_NAME (which contains the network name) and PASSWORD (which contains the security key).
+
+| Out-File -Encoding UTF8: This command saves the custom object to a text file, using UTF-8 encoding. The file will contain a list of all available wireless networks and their corresponding security keys.
+
+
+**t_pw=$(sudo sed -e '/ssid\ psk/,+1p' -ne ":a;$t_ssid/{n;h;p;x;ba}" /etc/wpa_supplicant/wpa_supplicant.conf | sed 's/[[:space:]]//g' | sed 's/psk="\(.*\)"/\1/')**
+
+sudo sed -e '/ssid\ psk/,+1p' -ne ":a;$t_ssid/{n;h;p;x;ba}" /etc/wpa_supplicant/wpa_supplicant.conf: This command extracts the lines of the configuration file located at /etc/wpa_supplicant/wpa_supplicant.conf that contain the SSID and the corresponding PSK (pre-shared key) of the wireless network that the device is currently connected to. This is done by searching for the line that contains the SSID of the current network, and then extracting the line that follows it, which contains the PSK.
+
+sed 's/[[:space:]]//g': This command removes all whitespace characters from the output of the previous command. This is done to ensure that the PSK is in the correct format for later use.
+
+sed 's/psk="\(.*\)"/\1/': This command extracts the PSK from the output of the previous command. It does this by searching for the string "psk=" followed by a double-quoted string, and then extracting the contents of the double-quoted string. The result is assigned to the variable $t_pw.
+
+In summary, this code extracts the PSK of the wireless network that the device is currently connected to and assigns it to the variable $t_pw.
+
+
+
+**sed -E -i '1{x;s#^#sed -n 1p wifipass.txt#e;x};10{G;s/\n(\S+).*/ \1/};11{G;s/\n\S+//}' config.txt** 
 
 By default, sed reads each line of a file. For each cycle, it removes the newline, places the result in the pattern space, goes through a sequence of commands, re-appends the newline and prints the result e.g. sed '' file replicates the cat command. The sed commands are usually placed between '...' and represent a cycle, thus:
 
