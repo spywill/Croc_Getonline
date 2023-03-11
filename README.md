@@ -26,38 +26,35 @@
 
 ## PAYLOAD INFO :
 
-**(netsh wlan show networks) | Select-String "\:(.+)$" | % {\$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)} | Select-String "Key Content\W+\:(.+)$" | % {$pass=$_.Matches.Groups[1].Value.Trim(); $_} | %{[PSCustomObject]@{ PROFILE_NAME=$name;PASSWORD=$pass }} | Out-File -Encoding UTF8**
+**PowerShell script that performs the following actions:**
 
-netsh wlan show networks: This command displays a list of all available wireless networks and their corresponding information, including their SSID and signal strength.
+Gets the drive letter of a volume with the label "KeyCroc" and assigns it to the $MOUNT_POINT variable using the Get-WmiObject cmdlet.
+Gets the SSID of the currently connected wireless network and assigns it to the $currentSSID variable using the netsh wlan command and Select-String cmdlet.
 
-| Select-String "\:(.+)$": This command selects only the lines that contain the network names by using regular expressions. Specifically, it searches for lines that end with a colon followed by one or more characters, and selects only those lines.
+Gets the password for the current wireless network and assigns it to the $lastObject variable using the netsh wlan command, Select-String cmdlet, and a series of ForEach-Object and Select-Object cmdlets. The password is then formatted as a string and written to a file at the location specified by $MOUNT_POINT.
+Dismounts the volume at $MOUNT_POINT using the Dismount-WindowsImage cmdlet, and exits the script.
 
-| % {\$name=$_.Matches.Groups[1].Value.Trim(); $_}: This command assigns the network name to the variable $name, which is extracted from the previously selected lines. It also trims any whitespace from the name.
+**Bash script that performs the following actions:**
 
-| %{(netsh wlan show profile name="$name" key=clear)}: This command uses the network name to retrieve the security information for each network. Specifically, it displays the profile information for the specified network, including the security key (if available).
+Sets the mount point for a volume with the label "KeyCroc" to /media/$(whoami)/KeyCroc.
+Gets the SSID of the currently connected wireless network using the iw command, grep, and awk to extract the SSID.
+Gets the password for the current wireless network by searching for the SSID in the /etc/wpa_supplicant/wpa_supplicant.conf file and extracting the password using sed.
+Writes the SSID and password to a file located at $MOUNT_POINT using tee.
+Unmounts the volume at $MOUNT_POINT using umount, and exits the script.
 
-| Select-String "Key Content\W+\:(.+)$": This command selects only the lines that contain the security key information. Specifically, it searches for lines that contain the text "Key Content" followed by a colon and one or more characters, and selects only those lines.
+**Bash script that performs the following actions:**
 
-| % {$pass=$_.Matches.Groups[1].Value.Trim(); $_}: This command assigns the security key to the variable $pass, which is extracted from the previously selected lines. It also trims any whitespace from the key.
+Sets the mount point for a volume with the label "KeyCroc" to /mnt/usb.
+Creates the mount point directory using mkdir with the -p flag to create the directory if it does not exist.
+Mounts the volume with the label "KeyCroc" to the mount point directory using the mount command with the -L flag to specify the label of the volume to be mounted.
+Gets the SSID of the currently connected wireless network using the iw command, grep, and awk to extract the SSID.
+Gets the password for the current wireless network by searching for the SSID in the /etc/NetworkManager/system-connections/ directory and extracting the password using grep and sed.
+Writes the SSID and password to a file located at $MOUNT_POINT using tee with sudo to obtain elevated privileges.
+Unmounts the volume at $MOUNT_POINT using umount, and exits the script.
 
-| %{[PSCustomObject]@{ PROFILE_NAME=$name;PASSWORD=$pass }}: This command creates a custom object that contains the network name and security key for each network. Specifically, it creates an object with two properties: PROFILE_NAME (which contains the network name) and PASSWORD (which contains the security key).
+Overall, this script retrieving the Wi-Fi password for the currently connected network and storing it in a file located on a specific mounted volume with the label "KeyCroc".
 
-| Out-File -Encoding UTF8: This command saves the custom object to a text file, using UTF-8 encoding. The file will contain a list of all available wireless networks and their corresponding security keys.
-
-
-**t_pw=$(sudo sed -e '/ssid\ psk/,+1p' -ne ":a;$t_ssid/{n;h;p;x;ba}" /etc/wpa_supplicant/wpa_supplicant.conf | sed 's/[[:space:]]//g' | sed 's/psk="\(.*\)"/\1/')**
-
-sudo sed -e '/ssid\ psk/,+1p' -ne ":a;$t_ssid/{n;h;p;x;ba}" /etc/wpa_supplicant/wpa_supplicant.conf: This command extracts the lines of the configuration file located at /etc/wpa_supplicant/wpa_supplicant.conf that contain the SSID and the corresponding PSK (pre-shared key) of the wireless network that the device is currently connected to. This is done by searching for the line that contains the SSID of the current network, and then extracting the line that follows it, which contains the PSK.
-
-sed 's/[[:space:]]//g': This command removes all whitespace characters from the output of the previous command. This is done to ensure that the PSK is in the correct format for later use.
-
-sed 's/psk="\(.*\)"/\1/': This command extracts the PSK from the output of the previous command. It does this by searching for the string "psk=" followed by a double-quoted string, and then extracting the contents of the double-quoted string. The result is assigned to the variable $t_pw.
-
-In summary, this code extracts the PSK of the wireless network that the device is currently connected to and assigns it to the variable $t_pw.
-
-
-
-**sed -E -i '1{x;s#^#sed -n 1p wifipass.txt#e;x};10{G;s/\n(\S+).*/ \1/};11{G;s/\n\S+//}' config.txt** 
+**-Sed command that performs the following actions:** 
 
 By default, sed reads each line of a file. For each cycle, it removes the newline, places the result in the pattern space, goes through a sequence of commands, re-appends the newline and prints the result e.g. sed '' file replicates the cat command. The sed commands are usually placed between '...' and represent a cycle, thus:
 
