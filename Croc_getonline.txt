@@ -2,7 +2,7 @@
 # Description:     Attempt to connect Keycroc automatically to target wifi access point
 #                  Save to tools/Croc_Pot/wifipass.txt and loot/Croc_Pot/old_wifipass.txt
 # Author:          spywill
-# Version:         3.5
+# Version:         3.6
 # Category:        Key Croc
 # Props:           Cribbit, Lodrix, potong, RootJunky, dark_pyrro
 
@@ -100,7 +100,7 @@ kill -9 $(pidof wpa_supplicant) && kill -9 $(pidof dhclient)
 ifconfig wlan0 down
 
 if [ "$LOOT" = "getonline_W" ]; then
-	sed -i '0,/./s/^.//' $wifi_pass
+	sed -i -e '1s/^[^[:print:]]*//' $wifi_pass
 	sed -i 's/\r//g' $wifi_pass
 fi
 
