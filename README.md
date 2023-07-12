@@ -12,17 +12,41 @@
 ## INSTALLATION :
 
   - Enter arming mode on your keycroc to install file.
-  - Download the Croc_getonline.txt payload and Place this in the KeyCroc **payload folder**
+  - Download the Croc_getonline.txt payload and Place this in the KeyCroc **payload folder**.
 
 ## STARTING GETONLINE :
 
-   - After install plug into target and type in anywhere
+After install plug into target and type in anywhere:
    - **getonline_W** <-- MATCH word for windows
    - **getonline_L** <-- MATCH word for Linux
    - **getonline_R** <-- MATCH word for Raspberry pi
-   - When the payload is done running the LED will light up green
-   - Keycroc should now be connected to target wifi access point
-   - NOTE: for linux edit payload for passwd needed for sudo permission
+   - **getonline_N** <-- MATCH word for connecting to known SSID ( EDIT PAYLOAD )
+   - **getonline_F** <-- MATCH word for reset keycroc to last known SSID
+   - **getonline_K** <-- MATCH word for kill keycroc wlan0 interface
+   - **getonline_S** <-- MATCH word for entering ATTACKMODE HID STORAGE
+   - **getonline_H** <-- MATCH word for entering ATTACKMODE HID
+   - When the payload is done running the LED will light up green Keycroc should now be connected to target wifi access point.
+   - NOTE: for linux edit payload for passwd needed for sudo permission.
+
+## PAYLOAD OPTIONS :
+
+Editing the payload options:
+
+- **option=0**
+
+This option will run paylaod as normal attempt to connect Keycroc to wifi access point.
+
+- **option=1**
+
+This option will run paylaod as normal, after a successful connection open terminal on target and start ssh session. ( EDIT PAYLOAD FOR KEYCROC PASSWORD )
+
+- **option=2**
+
+This option will run paylaod as normal, after a successful connection attempt a connect to remote_host using SSH. ( EDIT PAYLOAD FOR REMOTE_HOST, USER_NAME, IP, PASSWORD ON REMOTE_HOST ENTER THIS COMMAND "ssh root@localhost -p port#" )
+
+- **option=3**
+
+This option will run paylaod as normal, after a successful connection attempt a connect to remote_host using netcat. ( EDIT PAYLOAD FOR REMOTE_HOST, IP START LISTENER ON REMOTE_HOST WITH THIS COMMAND "nc -lnvp PORT# -s IP_REMOTE_HOST" )
 
 ## PAYLOAD INFO :
 
@@ -31,8 +55,7 @@
 Gets the drive letter of a volume with the label "KeyCroc" and assigns it to the $MOUNT_POINT variable using the Get-WmiObject cmdlet.
 Gets the SSID of the currently connected wireless network and assigns it to the $currentSSID variable using the netsh wlan command and Select-String cmdlet.
 
-Gets the password for the current wireless network and assigns it to the $lastObject variable using the netsh wlan command, Select-String cmdlet, and a series of ForEach-Object and Select-Object cmdlets. The password is then formatted as a string and written to a file at the location specified by $MOUNT_POINT.
-Dismounts the volume at $MOUNT_POINT using the Dismount-WindowsImage cmdlet, and exits the script.
+Gets the password for the current wireless network and assigns it to the $lastObject variable using the netsh wlan command, Select-String cmdlet, and a series of ForEach-Object and Select-Object cmdlets. The password is then formatted as a string and written to a file at the location specified by $MOUNT_POINT and exits the script.
 
 **Bash script that performs the following actions:**
 
@@ -60,7 +83,7 @@ By default, sed reads each line of a file. For each cycle, it removes the newlin
 
 1{x;s#^#sed -n 1p wifipass.txt#e;x}
 
-1{..} executes the commands between the ellipses on the first line of config.txt. Commands are separated by ;'s
+1{..} executes the commands between the ellipses on the first line of wifipass.txt. Commands are separated by ;'s
 x sed provides two buffers. After removing the newline that delimits each line of a file, the result is placed in the pattern space. Another buffer is provided empty, at the start of each invocation, called the hold space. The x swaps the pattern space for the hold space.
 s#^#sed -n 1p wifipass.txt this inserts another sed invocation into the empty hold space and evaluates it by the use of the e flag. The second invocation turns off implicit printing (-n option) and then prints line 1 of wifipass.txt only.
 x the hold space is now swapped with the pattern space.Thus, line 1 of wifipass.txt is placed in the hold space.
