@@ -34,19 +34,19 @@ Editing the payload options:
 
 - **option=0**
 
-This option will run paylaod as normal attempt to connect Keycroc to wifi access point.
+This option will run payload as normal, attempt to connect Keycroc to wifi access point.
 
 - **option=1**
 
-This option will run paylaod as normal, after a successful connection open terminal on target and start ssh session. ( EDIT PAYLOAD FOR KEYCROC PASSWORD )
+This option will run payload as normal, after a successful connection open terminal on target and start ssh session. ( EDIT PAYLOAD FOR KEYCROC PASSWORD )
 
 - **option=2**
 
-This option will run paylaod as normal, after a successful connection attempt a connect to remote_host using SSH. ( EDIT PAYLOAD FOR REMOTE_HOST, USER_NAME, IP, PASSWORD ON REMOTE_HOST ENTER THIS COMMAND "ssh root@localhost -p port#" )
+This option will run payload as normal, after a successful connection attempt a connection to remote_host using SSH. ( EDIT PAYLOAD FOR REMOTE_HOST, USER_NAME, IP, PASSWORD ON REMOTE_HOST ENTER THIS COMMAND "ssh root@localhost -p port#" )
 
 - **option=3**
 
-This option will run paylaod as normal, after a successful connection attempt a connect to remote_host using netcat. ( EDIT PAYLOAD FOR REMOTE_HOST, IP START LISTENER ON REMOTE_HOST WITH THIS COMMAND "nc -lnvp PORT# -s IP_REMOTE_HOST" )
+This option will run payload as normal, after a successful connection attempt a connection to remote_host using netcat. ( EDIT PAYLOAD FOR REMOTE_HOST, IP START LISTENER ON REMOTE_HOST WITH THIS COMMAND "nc -lnvp PORT# -s IP_REMOTE_HOST" )
 
 ## PAYLOAD INFO :
 
