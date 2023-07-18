@@ -1,8 +1,9 @@
 # Croc_Getonline
 
 ## INTRODUCTION :
-  - This project is developed for the HAK5 KeyCroc
-  - Attempt to connect Keycroc automatically to target wifi access point.
+  - This project is developed for the HAK5 KeyCroc.
+  - Attempt to connect Keycroc automatically to target wifi access point. OPTIONS Nmap, Iw, and Curl to gather essential network information and/or start Reverse SSH tunnel.
+  - Payload will use KeyCroc MATCH command to perform specific tasks.
 
 * **TESTED ON**
   - Windows 10
@@ -14,38 +15,71 @@
   - Enter arming mode on your keycroc to install file.
   - Download the Croc_getonline.txt payload and Place this in the KeyCroc **payload folder**.
 
-## STARTING GETONLINE :
+## STARTING CROC_GETONLINE :
 
 After install plug into target and type in anywhere:
-   - **getonline_W** <-- MATCH word for windows, Attempt connection to access point
-   - **getonline_L** <-- MATCH word for Linux, Attempt connection to access point
-   - **getonline_R** <-- MATCH word for Raspberry pi, Attempt connection to access point
-   - **getonline_N** <-- MATCH word for connecting to known SSID ( EDIT PAYLOAD )
-   - **getonline_F** <-- MATCH word for reset wlan0 interface to last known SSID
-   - **getonline_K** <-- MATCH word for killing keycroc wlan0 interface
-   - **getonline_S** <-- MATCH word for entering ATTACKMODE HID STORAGE
-   - **getonline_H** <-- MATCH word for entering ATTACKMODE HID
-   - When the payload is done running the LED will light up green Keycroc should now be connected to target wifi access point
-   - NOTE: for linux edit payload for passwd needed for sudo permission
+   - **`getonline_W`**  MATCH word for windows, Attempt connection to wifi access point
+   - **`getonline_L`**  MATCH word for Linux, Attempt connection to wifi access point
+   - **`getonline_R`**  MATCH word for Raspberry pi, Attempt connection to wifi access point
+   - **`getonline_N`**  MATCH word for connecting to known SSID ( EDIT PAYLOAD )
+   - **`getonline_F`**  MATCH word for reset wlan0 interface to last known SSID
+   - **`getonline_K`**  MATCH word for killing keycroc wlan0 interface
+   - **`getonline_S`**  MATCH word for entering ATTACKMODE HID STORAGE
+   - **`getonline_H`**  MATCH word for entering ATTACKMODE HID
+   - **`getonline_P`**  MATCH word for entering ATTACKMODE HID SERIAL
+   - **`getonline_A`**  MATCH word for entering ATTACKMODE HID AUTO_ETHERNET
+   - **`getonline_X`**  MATCH word for Remove Croc_Getonline payload, contents and reboot
+
+* **LED STATUS**
+  - **`LED WHITE`** Entering ATTACKMODE
+  - **`LED ATTACK`** Retrieving wifi access point credentials
+  - **`LED SETUP`** Configuring keycroc wlan0 interface to wifi access point
+  - **`LED GREEN`** Successful connection to wifi access point
+  - **`LED RED`** Payload failed
+  - **`LED CYAN`** Performing recon scan
+
+**NOTE:** for linux edit payload for password needed for sudo permission.
 
 ## PAYLOAD OPTIONS :
 
-Editing the payload options:
-- **option=0**
+Editing payload variable options:
+- **`option=0`**
 
 This option will run payload as normal, attempt to connect Keycroc to wifi access point.
 
-- **option=1**
+- **`option=1`**
 
-This option will run payload as normal, after a successful connection open terminal on target and start ssh session. ( EDIT PAYLOAD FOR KEYCROC PASSWORD )
+This option will run payload as normal, after a successful connection open terminal on target and start ssh session. 
 
-- **option=2**
+( EDIT PAYLOAD FOR KEYCROC PASSWORD )
 
-This option will run payload as normal, after a successful connection attempt a connection to remote_host using SSH. ( EDIT PAYLOAD FOR REMOTE_HOST, USER_NAME, IP, PASSWORD ON REMOTE_HOST ENTER THIS COMMAND "ssh root@localhost -p port#" )
+- **`option=2`**
 
-- **option=3**
+This option will run payload as normal, after a successful connection attempt a connection to remote_host using SSH. 
 
-This option will run payload as normal, after a successful connection attempt a connection to remote_host using netcat. ( EDIT PAYLOAD FOR REMOTE_HOST, IP START LISTENER ON REMOTE_HOST WITH THIS COMMAND "nc -lnvp PORT# -s IP_REMOTE_HOST" )
+( EDIT PAYLOAD FOR REMOTE_HOST, USER_NAME, IP, PASSWORD ON REMOTE_HOST ENTER THIS COMMAND "ssh root@localhost -p port#" )
+
+SSHPASS is a requirement for this option, payload will attempt to install if not installed.
+
+- **`option=3`**
+
+This option will run payload as normal, after a successful connection attempt a connection to remote_host using netcat. 
+
+( EDIT PAYLOAD FOR REMOTE_HOST, IP START LISTENER ON REMOTE_HOST WITH THIS COMMAND "nc -lnvp PORT# -s IP_REMOTE_HOST" )
+
+* **RECON SCAN OPTION**
+
+The options recon=off and recon=on play a key role in performing basic recon scans using Nmap, Iw, and Curl.
+
+- **`recon=off`**
+
+  - Suppresses active reconnaissance to maintain stealth.
+  - Useful for discreet scanning in sensitive environments.
+
+- **`recon=on`**
+
+  - Initiates basic network reconnaissance scans.
+  - Utilizes Nmap, Iw, and Curl to gather essential network information and save to /root/udisk/tools/Target_SSID.txt.
 
 ## PAYLOAD INFO :
 
