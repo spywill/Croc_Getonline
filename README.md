@@ -65,7 +65,12 @@ Editing payload variable options:
    - This option will run payload as normal, after a successful connection attempt a connection to remote_host using netcat. 
    - ( EDIT PAYLOAD FOR REMOTE_HOST, IP START LISTENER ON REMOTE_HOST WITH THIS COMMAND "nc -lnvp PORT# -s IP_REMOTE_HOST" )
 
-* **Configuring RECON scan with recon=on andrecon=off**
+- **`option=4`**
+
+  - This option will run payload as normal, after a successful connection open default browser and start web page.
+  - ( EDIT PAYLOAD FOR WEB SITE DEFAULT https://forums.hak5.org )
+
+* **Configuring RECON scan with recon=on and recon=off**
 
 The options recon=off and recon=on play a key role in performing basic recon scans using Nmap, Iw, and Curl.
 
